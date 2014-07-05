@@ -316,9 +316,9 @@ public class GameScene extends BaseScene
 			int box1X = 220;
 			int box1Y = 80;
 			int box1Width = 160;
-			uiPositions.addAll(getUIPositionForBox(box1X+box1Width*2/3, box1Y+box1Width*2/3, box1Width/3, 16));
+			uiPositions.addAll(getUIPositionForBox(box1X+box1Width*2/3, box1Y+box1Width*2/3, box1Width/3, 0));
 			uiPositions.addAll(getUIPositionForBox(box1X+box1Width/3, box1Y+box1Width/3, box1Width*2/3, 8));
-			uiPositions.addAll(getUIPositionForBox(box1X, box1Y, box1Width, 0));
+			uiPositions.addAll(getUIPositionForBox(box1X, box1Y, box1Width, 16));
 
 			return uiPositions;
 
@@ -484,29 +484,40 @@ public class GameScene extends BaseScene
 					//randomly make a move
 
 					PawnPosition sourcePawn = null;
+					PawnPosition targetPawn = null;
 					List<PawnPosition> tempSource = new ArrayList<PawnPosition>();
-					List<PawnPosition> tempTarget = new ArrayList<PawnPosition>();
 					for(PawnPosition pawn:allPawnPositions){
 						if(pawn.player == otherPlayer && pawn.uiPosition.logicalNumber >=24){
 							tempSource.add(pawn);
 						}
 					}
+					
 					if(tempSource.isEmpty()){
-					for(PawnPosition pawn:allPawnPositions){
-						if(pawn.player == otherPlayer){
-							tempSource.add(pawn);
+						for(PawnPosition pawn:allPawnPositions){
+							if(pawn.player == otherPlayer){
+								tempSource.add(pawn);
+							}
 						}
 					}
-					}
-					sourcePawn = tempSource.get((int)(Math.random()*100%tempSource.size()));
-
-					PawnPosition targetPawn = null;
-					for(PawnPosition pawn:allPawnPositions){
-						if(pawn.player == null && pawn.uiPosition.logicalNumber < 24){
-							tempTarget.add(pawn);
+					
+					while(true) {
+						if(tempSource.size() == 0) {
+							// TODO: Droid stuck. GAME OVER
+							return;
+						}
+						int randomChoice = (int)(Math.random()*100 % tempSource.size());
+						sourcePawn = tempSource.get(randomChoice);
+						int dest = backendGame.suggestMove(sourcePawn.uiPosition.logicalNumber);
+						
+						if(dest > 0) {
+							targetPawn = getPawnById(dest);
+							break;
+						}
+						else {
+							tempSource.remove(randomChoice);
 						}
 					}
-					targetPawn = tempTarget.get((int)(Math.random()*100%tempTarget.size()));
+					
 					//TODO invoke game api to make move. and if the result is attack, then write code to pick one of other players pawn
 					Debug.e("Droid playing now");
 					MoveOutcome moveOutcome = backendGame.movePawn(sourcePawn.uiPosition.logicalNumber, targetPawn.uiPosition.logicalNumber);
@@ -515,7 +526,11 @@ public class GameScene extends BaseScene
 						List<PawnPosition> pawnsThatCanBePicked = new ArrayList<PawnPosition>();
 						for(PawnPosition pawn: allPawnPositions){
 							if(pawn.player == whoAmI && pawn.uiPosition.logicalNumber < 24){
-								pawnsThatCanBePicked.add(pawn);
+								int temp = pawn.uiPosition.logicalNumber;
+								if(backendGame.isPickable(otherPlayer.playerNumber, temp/8, temp%8)) {
+									Debug.e("Adding to pickable: " + pawn.uiPosition.logicalNumber);
+									pawnsThatCanBePicked.add(pawn);
+								}
 							}
 						}
 						for(int i=0; i< pawnsThatCanBePicked.size();i++){
@@ -525,15 +540,18 @@ public class GameScene extends BaseScene
 								nullifyPawn(pawn);
 								enablePlayerPawns(whoAmI);
 								isMyTurn = true;
+								break;
 							}else if(removeOutcome.getEventType() == EventType.GAME_OVER){
 								//TODO handle game over
 							}
 
 						}
-					}else if(moveOutcome.getEventType() == EventType.SUCCESSFUL){
+					} else if(moveOutcome.getEventType() == EventType.SUCCESSFUL){
 						replacePawn(targetPawn, sourcePawn);
 						enablePlayerPawns(whoAmI);
 						isMyTurn = true;
+					} else if(moveOutcome.getEventType() == EventType.GAME_OVER) {
+						replacePawn(targetPawn, sourcePawn);
 					}
 
 				}

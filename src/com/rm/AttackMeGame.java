@@ -176,9 +176,14 @@ public class AttackMeGame {
 		}
 	}
 
-	private boolean isPickable(int byPlayer, int posX, int posY) {
-		if(isValidPos(posX, posY) && board[posX][posY] == getOpponent(byPlayer)) {
-			return (isInAttack(posX, posY) != true);
+	public boolean isPickable(int byPlayer, int posX, int posY) {
+		if(isValidPos(posX, posY)) {
+			if(board[posX][posY] == getOpponent(byPlayer)) {
+				return (isInAttack(posX, posY) != true);
+			}
+			else {
+				return false;
+			}
 		}
 		else {
 			throw new IllegalArgumentException("Bad inputs to isPickable()!");
@@ -199,7 +204,7 @@ public class AttackMeGame {
 		}
 
 		board[x][y] = currentPlayer;
-		System.out.println("Player#" + currentPlayer + " placed pick in " + (x*10+y));
+		System.out.println("Player#" + currentPlayer + " placed pick in " + (x*8+y));
 
 		if(isInAttack(x, y)) {
 			System.out.println("Successful attack by player#" + currentPlayer);
@@ -248,7 +253,7 @@ public class AttackMeGame {
 		if(isValidMove(srcX, srcY, destX, destY)) {
 			board[destX][destY] = board[srcX][srcY];
 			board[srcX][srcY]= EMPTY;
-			System.out.println("Successful move from " + (srcX*10+srcY) + " to " + (destX*10+destY));
+			System.out.println("Successful move from " + (srcX*8+srcY) + " to " + (destX*8+destY));
 
 			if(isInAttack(destX, destY)) {
 				System.out.println("Successful attack by player#" + currentPlayer);
@@ -265,7 +270,7 @@ public class AttackMeGame {
 	private GAME_STATUS pickOpponent(int x, int y) {
 		if(isPickable(currentPlayer, x, y)) {
 			board[x][y] = EMPTY;
-			System.out.println("Player#" + currentPlayer + " picked opponent's pick from " + (x*10+y));
+			System.out.println("Player#" + currentPlayer + " picked opponent's pick from " + (x*8+y));
 
 			int opponent = (currentPlayer % 2 + 1);
 			if(opponent == 1) {
@@ -350,7 +355,44 @@ public class AttackMeGame {
 		Debug.e("And the error is:"+result.errorMessage);
 		return result;
 	}
+	
+	public int suggestMove(int src) {
+		int dest = -1;
+		if(src >= 24) {
+			for(int i=0; i<GRIDS; i++) {
+				for(int j=0; j<POINTS; j++) {
+					if(board[i][j] == EMPTY) {
+						if(Math.random() < 0.20) {
+							return i*8+j;
+						}
+						else
+						{
+							dest = i*8+j;
+						}
+					}
+				}
+			}
+			return dest;
+		}
 
+		dest = (src - src%8) + (src + 1) %8;
+		if(board[dest/8][dest%8] == EMPTY) return dest;
+		dest = (src - src%8) + (src - 1) %8;
+		if(board[dest/8][dest%8] == EMPTY) return dest;
+		if(src >= 8 && (src % 2 == 0 || hasXes)) {
+			dest = src - 8;
+			if(board[dest/8][dest%8] == EMPTY) 
+				return dest;
+		}
+		if(src < 16 && (src % 2 == 0 || hasXes)) {
+			dest = src + 8;
+			if(board[dest/8][dest%8] == EMPTY) 
+				return dest;
+		}
+
+		return -1;
+	}
+	
 	public MoveOutcome removePawn(int loc) {
 		Debug.e("Remove pawn invoked with id:"+ loc);
 		MoveOutcome result = new MoveOutcome();

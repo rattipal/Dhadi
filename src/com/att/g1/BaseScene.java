@@ -8,8 +8,6 @@ import org.andengine.ui.activity.BaseGameActivity;
 
 import com.att.g1.SceneManager.SceneType;
 
-import android.app.Activity;
-
 public abstract class BaseScene extends Scene
 {
     //---------------------------------------------

@@ -22,8 +22,6 @@ import org.andengine.util.debug.Debug;
 
 import com.att.g1.SceneManager.SceneType;
 
-import android.app.Activity;
-
 public class MenuScene extends BaseScene{
 	
 	public MenuScene(Engine engine, BaseGameActivity activity,

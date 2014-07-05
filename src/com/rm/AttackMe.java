@@ -20,7 +20,7 @@ public class AttackMe {
 	static AttackMeGame game;
 
 	public static AttackMeGame startNewGame(int numberOfPawns, boolean hasXes) {
-		game = new AttackMeGame(11, false);
+		game = new AttackMeGame(numberOfPawns, hasXes);
 		return game;
 	}
 
