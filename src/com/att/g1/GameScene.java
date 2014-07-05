@@ -204,7 +204,7 @@ public class GameScene extends BaseScene
 						UIPosition uiPostionTemp = getUIPosition(pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
 						if(uiPostionTemp != null){
 							MoveOutcome outcome = backendGame.movePawn(this.uiPosition.logicalNumber, uiPostionTemp.logicalNumber);
-							Debug.e(outcome.getEventType().toString());
+							Debug.i(outcome.getEventType().toString());
 							if(outcome.getEventType() == EventType.SUCCESSFUL){
 								PawnPosition pawnPosition = getPawnPositionForUIPosition(uiPostionTemp);
 								replacePawn(pawnPosition, this);
@@ -408,7 +408,7 @@ public class GameScene extends BaseScene
 		}
 
 		private void passTurnToOtherPlayer(){
-			Debug.e("Passing turn to other player");
+			Debug.i("Passing turn to other player");
 			disablePlayerPawns(whoAmI);
 			isMyTurn = false;
 			if(gameMode == GameMode.DROID){
@@ -519,7 +519,7 @@ public class GameScene extends BaseScene
 					}
 					
 					//TODO invoke game api to make move. and if the result is attack, then write code to pick one of other players pawn
-					Debug.e("Droid playing now");
+					Debug.i("Droid playing now");
 					MoveOutcome moveOutcome = backendGame.movePawn(sourcePawn.uiPosition.logicalNumber, targetPawn.uiPosition.logicalNumber);
 					if(moveOutcome.getEventType() == EventType.ATTACK_DETECTED){
 						replacePawn(targetPawn, sourcePawn);
@@ -528,7 +528,7 @@ public class GameScene extends BaseScene
 							if(pawn.player == whoAmI && pawn.uiPosition.logicalNumber < 24){
 								int temp = pawn.uiPosition.logicalNumber;
 								if(backendGame.isPickable(otherPlayer.playerNumber, temp/8, temp%8)) {
-									Debug.e("Adding to pickable: " + pawn.uiPosition.logicalNumber);
+									Debug.i("Adding to pickable: " + pawn.uiPosition.logicalNumber);
 									pawnsThatCanBePicked.add(pawn);
 								}
 							}
