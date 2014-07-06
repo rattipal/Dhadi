@@ -1,4 +1,4 @@
-package com.att.g1;
+package com.mihu.dhadi.frontend;
 
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.Camera;
@@ -20,7 +20,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.util.debug.Debug;
 
-import com.att.g1.SceneManager.SceneType;
+import com.mihu.dhadi.frontend.SceneManager.SceneType;
 
 public class MenuScene extends BaseScene{
 	

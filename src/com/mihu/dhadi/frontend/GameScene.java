@@ -1,4 +1,4 @@
-package com.att.g1;
+package com.mihu.dhadi.frontend;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +28,10 @@ import org.andengine.util.debug.Debug;
 
 import android.graphics.Typeface;
 
-import com.att.g1.SceneManager.SceneType;
-import com.rm.AttackMe;
-import com.rm.AttackMeGame;
-import com.rm.EventType;
-import com.rm.MoveOutcome;
+import com.mihu.dhadi.backend.AttackMeGame;
+import com.mihu.dhadi.backend.EventType;
+import com.mihu.dhadi.backend.MoveOutcome;
+import com.mihu.dhadi.frontend.SceneManager.SceneType;
 
 public class GameScene extends BaseScene
 {
@@ -183,20 +182,28 @@ public class GameScene extends BaseScene
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if(attackOccurred){
 					if(pSceneTouchEvent.isActionUp()){
-						PawnPosition pawnBeingRemoved = getPawnPositionForUIPosition(getUIPosition(pSceneTouchEvent.getX(), pSceneTouchEvent.getY()));
-						MoveOutcome outcome = backendGame.removePawn(pawnBeingRemoved.uiPosition.logicalNumber);
-						if(outcome.getEventType() == EventType.SUCCESSFUL){
+						PawnPosition pawnBeingRemoved;
+						
+						try {
+							pawnBeingRemoved = getPawnPositionForUIPosition(getUIPosition(pSceneTouchEvent.getX(), pSceneTouchEvent.getY()));
 
-							nullifyPawn(pawnBeingRemoved);
-							disablePlayerPawns(otherPlayer);
-							attackOccurred = false;
-							passTurnToOtherPlayer();
+							MoveOutcome outcome = backendGame.removePawn(pawnBeingRemoved.uiPosition.logicalNumber);
+							if(outcome.getEventType() == EventType.SUCCESSFUL){
 
-						}else if(outcome.getEventType() == EventType.GAME_OVER){
-							//TODO: handle game over scenario
+								nullifyPawn(pawnBeingRemoved);
+								disablePlayerPawns(otherPlayer);
+								attackOccurred = false;
+								passTurnToOtherPlayer();
+
+							}else if(outcome.getEventType() == EventType.GAME_OVER){
+								//TODO: handle game over scenario
+							}
+						}
+						catch(Exception e) {
+							this.reInitiatePosition();
 						}
 					}
-				}else{
+				} else{
 
 					if(pSceneTouchEvent.isActionMove()){
 						this.setPosition(pSceneTouchEvent.getX() - this.getWidth() / 2, pSceneTouchEvent.getY() - this.getHeight() / 2);
@@ -205,23 +212,24 @@ public class GameScene extends BaseScene
 						if(uiPostionTemp != null){
 							MoveOutcome outcome = backendGame.movePawn(this.uiPosition.logicalNumber, uiPostionTemp.logicalNumber);
 							Debug.i(outcome.getEventType().toString());
+							
 							if(outcome.getEventType() == EventType.SUCCESSFUL){
 								PawnPosition pawnPosition = getPawnPositionForUIPosition(uiPostionTemp);
 								replacePawn(pawnPosition, this);
 								passTurnToOtherPlayer();
-							}else if(outcome.getEventType() == EventType.ATTACK_DETECTED){
+							} else if(outcome.getEventType() == EventType.ATTACK_DETECTED){
 								PawnPosition pawnPosition = getPawnPositionForUIPosition(uiPostionTemp);
 								replacePawn(pawnPosition, this);
 								//passTurnToOtherPlayer();
 								attackOccurred = true;
 								disablePlayerPawns(whoAmI);
 								enablePlayerPawns(otherPlayer);
-							}else if(outcome.getEventType() == EventType.GAME_OVER){
+							} else if(outcome.getEventType() == EventType.GAME_OVER){
 								//TODO handle game over
-							}else{
+							} else{
 								this.reInitiatePosition();
 							}
-						}else{
+						} else{
 							this.reInitiatePosition();
 						}
 					}
@@ -271,7 +279,7 @@ public class GameScene extends BaseScene
 
 		public Game(GameMode gameMode, int pawnsPerPlayer, int playerNum){
 
-			backendGame = AttackMe.startNewGame(pawnsPerPlayer, false);
+			backendGame = AttackMeGame.startNewGame(pawnsPerPlayer, false);
 			this.gameMode = gameMode;
 			this.pawnsPerPlayer = pawnsPerPlayer;
 			if(playerNum == 0){

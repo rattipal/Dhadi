@@ -1,4 +1,4 @@
-package com.rm;
+package com.mihu.dhadi.backend;
 
 public enum EventType {
 	ERROR,

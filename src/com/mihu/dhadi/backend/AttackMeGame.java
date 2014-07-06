@@ -1,8 +1,30 @@
-package com.rm;
+package com.mihu.dhadi.backend;
 
 import org.andengine.util.debug.Debug;
 
+enum PHASES {
+	PLACE, MOVE;
+}
+
+enum GAME_STATUS {
+	NOT_STARTED,
+	STARTED,
+	NEXT_PLAYER, 
+	SHOULD_PICK,
+	PLAYER1_WON, 
+	PLAYER2_STUCK, 
+	PLAYER2_WON, 
+	PLAYER1_STUCK, 
+	ADVANCE_PHASE_NEXT_PLAYER;
+}
+
 public class AttackMeGame {
+	static AttackMeGame game;
+
+	public static AttackMeGame startNewGame(int numberOfPawns, boolean hasXes) {
+		game = new AttackMeGame(numberOfPawns, hasXes);
+		return game;
+	}
 
 	// Conceptual Game constants
 	public static final int PLAYERS = 2;
@@ -326,7 +348,7 @@ public class AttackMeGame {
 	}
 
 	public MoveOutcome movePawn(int src, int dest) {
-		Debug.e("MovePawn invoked with src:"+ src + " and dest:"+ dest);
+		Debug.i("MovePawn invoked with src: "+ src + " and dest: "+ dest);
 		MoveOutcome result = new MoveOutcome();
 
 		try {
@@ -351,8 +373,10 @@ public class AttackMeGame {
 			result.eventType = EventType.ERROR;
 			result.errorMessage = e.getMessage();
 		}
-		Debug.e("The result of move being returned is:"+result.eventType.toString());
-		Debug.e("And the error is:"+result.errorMessage);
+		Debug.i("The result of move being returned is:"+result.eventType.toString());
+		if(result.getEventType() == EventType.ERROR) {
+			Debug.e("And the error is:"+result.errorMessage);
+		}
 		return result;
 	}
 	
@@ -394,7 +418,7 @@ public class AttackMeGame {
 	}
 	
 	public MoveOutcome removePawn(int loc) {
-		Debug.e("Remove pawn invoked with id:"+ loc);
+		Debug.i("Remove pawn invoked with id: "+ loc);
 		MoveOutcome result = new MoveOutcome();
 
 		try {
@@ -411,8 +435,10 @@ public class AttackMeGame {
 			result.eventType = EventType.ERROR;
 			result.errorMessage = e.getMessage();
 		}
-		Debug.e("The result of remove is:"+result.eventType.toString());
-		Debug.e("And the error message is"+result.errorMessage);
+		Debug.i("The result of remove is:" + result.eventType.toString());
+		if(result.getEventType() == EventType.ERROR) {
+			Debug.e("And the error message is"+result.errorMessage);
+		}
 		return result;
 	}
 }
